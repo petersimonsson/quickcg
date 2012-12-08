@@ -19,7 +19,11 @@
      <number>0</number>
     </property>
     <item row="0" column="0">
-     <widget class="QDeclarativeView" name="m_graphicsView"/>
+     <widget class="QDeclarativeView" name="m_graphicsView">
+      <property name="cursor" stdset="0">
+       <cursorShape>BlankCursor</cursorShape>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
