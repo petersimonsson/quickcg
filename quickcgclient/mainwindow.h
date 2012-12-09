@@ -61,6 +61,8 @@ protected slots:
     void onCurrentShowChanged(const QString &showName);
     void onRemoveShow();
 
+    void showGraphicContextMenu(const QPoint &pos);
+
 private:
     Ui::MainWindow *ui;
 

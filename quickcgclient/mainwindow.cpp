@@ -76,6 +76,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->m_graphicTreeView, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(toggleGraphicOnAir(QModelIndex)));
+    connect (ui->m_graphicTreeView, SIGNAL(customContextMenuRequested(QPoint)),
+             this, SLOT(showGraphicContextMenu(QPoint)));
 
     connect(m_connection, SIGNAL(graphicAdded(QString)),
             this, SLOT(addGraphic(QString)));
@@ -276,4 +278,21 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
     }
 
     return false;
+}
+
+void MainWindow::showGraphicContextMenu(const QPoint &pos)
+{
+    QModelIndex index = ui->m_graphicTreeView->indexAt(pos);
+
+    QScopedPointer<QMenu> menu(new QMenu(this));
+
+    menu->addAction(ui->actionNewGraphic);
+
+    if(index.isValid())
+    {
+        menu->addAction(ui->actionEditGraphic);
+        menu->addAction(ui->actionRemoveGraphic);
+    }
+
+    menu->exec(ui->m_graphicTreeView->mapToGlobal(pos));
 }

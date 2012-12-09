@@ -20,11 +20,17 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="1" column="0" colspan="2">
      <widget class="QTreeView" name="m_graphicTreeView">
+      <property name="contextMenuPolicy">
+       <enum>Qt::CustomContextMenu</enum>
+      </property>
       <property name="editTriggers">
        <set>QAbstractItemView::NoEditTriggers</set>
       </property>
       <property name="rootIsDecorated">
        <bool>false</bool>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
       </property>
       <property name="headerHidden">
        <bool>true</bool>
@@ -59,7 +65,7 @@
      <x>0</x>
      <y>0</y>
      <width>534</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -125,13 +131,16 @@
    <property name="text">
     <string>Edit...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
   </action>
   <action name="actionRemoveGraphic">
    <property name="text">
     <string>Remove</string>
    </property>
    <property name="shortcut">
-    <string>Backspace</string>
+    <string>Del</string>
    </property>
   </action>
   <action name="actionNewShow">
