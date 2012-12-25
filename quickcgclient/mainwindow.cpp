@@ -90,6 +90,14 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(onCurrentShowChanged(QString)));
 
     ui->m_graphicTreeView->installEventFilter(this);
+
+	QSettings settings;
+	QString serverAddress = settings.value ("Connection/Server").toString ();
+
+	if (settings.value ("Connection/AutoConnect").toString ().toLower () == "true" && !serverAddress.isEmpty ())
+	{
+		m_connection->connectToServer (serverAddress, settings.value ("Connection/Port", 31337).toInt ());
+	}
 }
 
 MainWindow::~MainWindow()
