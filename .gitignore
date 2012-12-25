@@ -1,1 +1,6 @@
 *.pro.user
+moc_*
+*.o
+Makefile
+*.app
+ui_*
