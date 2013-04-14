@@ -172,7 +172,11 @@ void MainWindow::onEditGraphic()
     }
 
     QString graphic = m_graphicModel->data(indexes.first(), Qt::DisplayRole).toString();
+    editGraphic(graphic);
+}
 
+void MainWindow::editGraphic(const QString& graphic)
+{
     if(graphic.isEmpty())
     {
         return;
@@ -220,6 +224,7 @@ void MainWindow::addGraphic(const QString &graphic)
 {
     m_graphicModel->insertRows(m_graphicModel->rowCount(), 1);
     m_graphicModel->setData(m_graphicModel->index(m_graphicModel->rowCount() - 1), graphic);
+    editGraphic(graphic);
 }
 
 void MainWindow::removeGraphic(const QString &graphic)
