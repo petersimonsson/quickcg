@@ -108,6 +108,7 @@ void Show::loadGraphic(const QDomElement &element)
 
     graphic->setOnAirTimerEnabled(element.attribute("onairtimerenabled", "false").toLower() == "true");
     graphic->setOnAirTimerInterval(element.attribute("onairtimerinterval", "10000").toInt());
+    graphic->setGroup(element.attribute("group"));
 
     QDomElement child = element.firstChildElement();
 
@@ -134,6 +135,17 @@ void Show::setGraphicOnAir(const QString &name, bool state)
     if(graphic)
     {
         graphic->setOnAir(state);
+
+        if(!graphic->group().isEmpty())
+        {
+            foreach(Graphic* other, m_graphicHash)
+            {
+                if(other != graphic && other->group() == graphic->group())
+                {
+                    other->setOnAir(false);
+                }
+            }
+        }
     }
 }
 
@@ -171,18 +183,6 @@ Graphic *Show::createGraphic(const QString &name, const QString &templateName)
     graphic->setComponent(m_mainWindow->loadTemplate(templateName));
 
     return graphic;
-}
-
-QList<QPair<QString, QVariant> > Show::graphicProperties(const QString &name) const
-{
-    Graphic *graphic = m_graphicHash.value(name);
-
-    if(graphic)
-    {
-        return graphic->properties();
-    }
-
-    return QList<QPair<QString, QVariant> >();
 }
 
 QStringList Show::parseGraphicProperties(const QString &name)
@@ -223,63 +223,6 @@ QStringList Show::parseGraphicProperties(const QString &name)
     return list;
 }
 
-void Show::setGraphicProperties(const QString &name, const QList<QPair<QString, QVariant> > &properties)
-{
-    Graphic* graphic = m_graphicHash.value(name);
-
-    if(graphic)
-    {
-        for(int i = 0; i < properties.count(); ++i)
-        {
-            graphic->setGraphicsProperty(properties.at(i).first.toLocal8Bit(), properties.at(i).second);
-        }
-    }
-}
-
-bool Show::graphicOnAirTimerEnabled(const QString &name) const
-{
-    Graphic* graphic = m_graphicHash.value(name);
-
-    if(graphic)
-    {
-        return graphic->onAirTimerEnabled();
-    }
-
-    return false;
-}
-
-int Show::graphicOnAirTimerInterval(const QString &name) const
-{
-    Graphic* graphic = m_graphicHash.value(name);
-
-    if(graphic)
-    {
-        return graphic->onAirTimerInterval();
-    }
-
-    return 0;
-}
-
-void Show::setGraphicOnAirTimerEnabled(const QString &name, bool enabled)
-{
-    Graphic* graphic = m_graphicHash.value(name);
-
-    if(graphic)
-    {
-        graphic->setOnAirTimerEnabled(enabled);
-    }
-}
-
-void Show::setGraphicOnAirTimerInterval(const QString &name, int interval)
-{
-    Graphic* graphic = m_graphicHash.value(name);
-
-    if(graphic)
-    {
-        graphic->setOnAirTimerInterval(interval);
-    }
-}
-
 void Show::save()
 {
     if(m_showPath.isEmpty())
@@ -307,6 +250,7 @@ void Show::save()
         graphicElement.setAttribute("template", info.fileName());
         graphicElement.setAttribute("onairtimerenabled", graphic->onAirTimerEnabled() ? "true" : "false");
         graphicElement.setAttribute("onairtimerinterval", graphic->onAirTimerInterval());
+        graphicElement.setAttribute("group", graphic->group());
 
         QList<QPair<QString, QVariant> > list = graphic->properties();
 

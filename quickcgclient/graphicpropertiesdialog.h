@@ -39,6 +39,9 @@ public:
     void setOnAirTimerInterval(int ms);
     int onAirTimerInterval() const;
 
+    void setGroup(const QString& name);
+    QString group() const;
+
 private:
     Ui::GraphicPropertiesDialog *ui;
 };

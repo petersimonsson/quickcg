@@ -41,16 +41,8 @@ public:
     bool isGraphicOnAir(const QString &name) const;
 
     Graphic *createGraphic(const QString &name, const QString &templateName);
-
-    QList<QPair<QString, QVariant> > graphicProperties(const QString &name) const;
-    void setGraphicProperties(const QString &name, const QList<QPair<QString, QVariant> > &properties);
-
-    bool graphicOnAirTimerEnabled(const QString &name) const;
-    int graphicOnAirTimerInterval(const QString &name) const;
-    void setGraphicOnAirTimerEnabled(const QString &name, bool enabled);
-    void setGraphicOnAirTimerInterval(const QString &name, int interval);
-
     void removeGraphic(const QString &name);
+    Graphic* graphicFromName(const QString& name) const { return m_graphicHash.value(name); }
 
     QString showName() const;
     QString showPath() const { return m_showPath; }

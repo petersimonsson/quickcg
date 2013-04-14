@@ -48,6 +48,9 @@ public:
     void setOnAirTimerInterval(int ms);
     int onAirTimerInterval() const { return m_onAirTimer->interval(); }
 
+    void setGroup(const QString& name) { m_group = name; }
+    QString group() const { return m_group; }
+
 public slots:
     void toggleOnAir();
     void setOnAir(bool state);
@@ -57,6 +60,7 @@ protected slots:
 
 private:
     QString m_name;
+    QString m_group;
 
     QDeclarativeComponent *m_component;
     QDeclarativeItem *m_item;

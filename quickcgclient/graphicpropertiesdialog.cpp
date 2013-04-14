@@ -85,3 +85,13 @@ int GraphicPropertiesDialog::onAirTimerInterval() const
 {
     return ui->m_onAirTimerInterval->value() * 1000;
 }
+
+void GraphicPropertiesDialog::setGroup(const QString& name)
+{
+    ui->m_groupEdit->setText(name);
+}
+
+QString GraphicPropertiesDialog::group() const
+{
+    return ui->m_groupEdit->text();
+}

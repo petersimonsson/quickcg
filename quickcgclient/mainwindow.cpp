@@ -50,8 +50,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->actionEditGraphic, SIGNAL(triggered()),
             this, SLOT(onEditGraphic()));
-    connect(m_connection, SIGNAL(graphicPropertiesReceived(QString,bool,int,QList<QPair<QString,QVariant> >)),
-            this, SLOT(editGraphicProperties(QString,bool,int, QList<QPair<QString, QVariant> >)));
+    connect(m_connection, SIGNAL(graphicPropertiesReceived(QString,bool,int,QString,QList<QPair<QString,QVariant> >)),
+            this, SLOT(editGraphicProperties(QString,bool,int,QString,QList<QPair<QString,QVariant> >)));
 
     connect(ui->actionRemoveGraphic, SIGNAL(triggered()),
             this, SLOT(onRemoveGraphic()));
@@ -91,13 +91,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->m_graphicTreeView->installEventFilter(this);
 
-	QSettings settings;
-	QString serverAddress = settings.value ("Connection/Server").toString ();
+    QSettings settings;
+    QString serverAddress = settings.value ("Connection/Server").toString ();
 
-	if (settings.value ("Connection/AutoConnect").toString ().toLower () == "true" && !serverAddress.isEmpty ())
-	{
-		m_connection->connectToServer (serverAddress, settings.value ("Connection/Port", 31337).toInt ());
-	}
+    if (settings.value ("Connection/AutoConnect").toString ().toLower () == "true" && !serverAddress.isEmpty ())
+    {
+        m_connection->connectToServer (serverAddress, settings.value ("Connection/Port", 31337).toInt ());
+    }
 }
 
 MainWindow::~MainWindow()
@@ -181,17 +181,19 @@ void MainWindow::onEditGraphic()
     m_connection->getProperties(graphic);
 }
 
-void MainWindow::editGraphicProperties(const QString &graphic, bool onAirTimerEnabled, int onAirTimerInterval, const QList<QPair<QString, QVariant> > &properties)
+void MainWindow::editGraphicProperties(const QString &graphic, bool onAirTimerEnabled, int onAirTimerInterval,
+                                       const QString& group, const QList<QPair<QString, QVariant> > &properties)
 {
     QScopedPointer<GraphicPropertiesDialog> dialog(new GraphicPropertiesDialog(this));
 
     dialog->setOnAirTimerEnabled(onAirTimerEnabled);
     dialog->setOnAirTimerInterval(onAirTimerInterval);
+    dialog->setGroup(group);
     dialog->setProperties(properties);
 
     if(dialog->exec() == QDialog::Accepted)
     {
-        m_connection->setGraphicProperties(graphic, dialog->onAirTimerEnabled(), dialog->onAirTimerInterval(), dialog->properties());
+        m_connection->setGraphicProperties(graphic, dialog->onAirTimerEnabled(), dialog->onAirTimerInterval(), dialog->group(), dialog->properties());
     }
 }
 

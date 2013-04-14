@@ -172,30 +172,32 @@ void ClientConnection::parseGetProperties(const QVariant &data)
         return;
     }
 
-    QString graphic = data.toString();
+    QString graphicName = data.toString();
+    Graphic* graphic = m_server->mainWindow()->currentShow()->graphicFromName(graphicName);
 
-    QList<QPair<QString, QVariant> > propertyList = m_server->mainWindow()->currentShow()->graphicProperties(graphic);
-
-    QVariantMap commanddata;
-    commanddata.insert("Name", graphic);
-    bool timerEnabled = m_server->mainWindow()->currentShow()->graphicOnAirTimerEnabled(graphic);
-    int timerInterval = m_server->mainWindow()->currentShow()->graphicOnAirTimerInterval(graphic);
-    commanddata.insert("OnAirTimerEnabled", timerEnabled);
-    commanddata.insert("OnAirTimerInterval", timerInterval);
-
-    QVariantList list;
-
-    for(int i = 0; i < propertyList.count(); ++i)
+    if(graphic)
     {
-        QVariantMap property;
-        property.insert("Name", propertyList.at(i).first);
-        property.insert("Value", propertyList.at(i).second);
-        list.append(property);
+        QVariantMap commanddata;
+        commanddata.insert("Name", graphicName);
+        commanddata.insert("OnAirTimerEnabled", graphic->onAirTimerEnabled());
+        commanddata.insert("OnAirTimerInterval", graphic->onAirTimerInterval());
+        commanddata.insert("Group", graphic->group());
+
+        QList<QPair<QString, QVariant> > propertyList = graphic->properties();
+        QVariantList list;
+
+        for(int i = 0; i < propertyList.count(); ++i)
+        {
+            QVariantMap property;
+            property.insert("Name", propertyList.at(i).first);
+            property.insert("Value", propertyList.at(i).second);
+            list.append(property);
+        }
+
+        commanddata.insert("Properties", list);
+
+        sendCommand("graphic properties", commanddata);
     }
-
-    commanddata.insert("Properties", list);
-
-    sendCommand("graphic properties", commanddata);
 }
 
 void ClientConnection::parseSetGraphicProperties(const QVariant &data)
@@ -206,19 +208,22 @@ void ClientConnection::parseSetGraphicProperties(const QVariant &data)
     }
 
     QVariantMap dataMap = data.toMap();
-    QString graphic = dataMap.value("Name").toString();
-    m_server->mainWindow()->currentShow()->setGraphicOnAirTimerEnabled(graphic, dataMap.value("OnAirTimerEnabled", false).toBool());
-    m_server->mainWindow()->currentShow()->setGraphicOnAirTimerInterval(graphic, dataMap.value("OnAirTimerInterval", 10000).toInt());
-    QVariantList list = dataMap.value("Properties").toList();
-    QList<QPair<QString, QVariant> > propertyList;
+    QString graphicName = dataMap.value("Name").toString();
+    Graphic* graphic = m_server->mainWindow()->currentShow()->graphicFromName(graphicName);
 
-    foreach(const QVariant &property, list)
+    if(graphic)
     {
-        QVariantMap propertyMap = property.toMap();
-        propertyList.append(QPair<QString, QVariant>(propertyMap.value("Name").toString(), propertyMap.value("Value")));
-    }
+        graphic->setOnAirTimerEnabled(dataMap.value("OnAirTimerEnabled", false).toBool());
+        graphic->setOnAirTimerInterval(dataMap.value("OnAirTimerInterval", 10000).toInt());
+        graphic->setGroup(dataMap.value("Group").toString());
+        QVariantList list = dataMap.value("Properties").toList();
 
-    m_server->mainWindow()->currentShow()->setGraphicProperties(graphic, propertyList);
+        foreach(const QVariant &property, list)
+        {
+            QVariantMap propertyMap = property.toMap();
+            graphic->setGraphicsProperty(propertyMap.value("Name").toString().toLocal8Bit(), propertyMap.value("Value"));
+        }
+    }
 }
 
 void ClientConnection::parseRemoveGraphic(const QVariant &data)

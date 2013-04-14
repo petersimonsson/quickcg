@@ -35,7 +35,8 @@ public slots:
     void fetchTemplateList();
     void createGraphic(const QString &name, const QString &templateName);
     void getProperties(const QString &graphic);
-    void setGraphicProperties(const QString &graphic, bool onAirTimerEnabled, int onAirTimerInterval, const QList<QPair<QString, QVariant> > &properties);
+    void setGraphicProperties(const QString &graphic, bool onAirTimerEnabled, int onAirTimerInterval,
+                              const QString& group, const QList<QPair<QString, QVariant> > &properties);
     void removeGraphic(const QString &name);
 
     void fetchShowList();
@@ -76,7 +77,8 @@ signals:
 
     void graphicListChanged(const QStringList &list);
     void templateListReceived(const QStringList &list);
-    void graphicPropertiesReceived(const QString &graphic, bool onAirTimerEnabled, int onAirTimerInterval, const QList<QPair<QString, QVariant> > &propertyList);
+    void graphicPropertiesReceived(const QString &graphic, bool onAirTimerEnabled, int onAirTimerInterval,
+                                   const QString& group, const QList<QPair<QString, QVariant> > &propertyList);
     void graphicAdded(const QString &graphic);
     void graphicRemoved(const QString &graphic);
 

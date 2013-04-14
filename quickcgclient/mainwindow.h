@@ -49,7 +49,8 @@ protected slots:
     void createGraphic(const QStringList &templates);
 
     void onEditGraphic();
-    void editGraphicProperties(const QString &graphic, bool onAirTimerEnabled, int onAirTimerInterval, const QList<QPair<QString, QVariant> > &properties);
+    void editGraphicProperties(const QString &graphic, bool onAirTimerEnabled, int onAirTimerInterval,
+                               const QString& group, const QList<QPair<QString, QVariant> > &properties);
 
     void onRemoveGraphic();
 

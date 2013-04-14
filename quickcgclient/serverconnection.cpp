@@ -171,6 +171,7 @@ void ServerConnection::parseGraphicProperties(const QVariant &data)
     QString graphic = dataMap.value("Name").toString();
     bool timerEnabled = dataMap.value("OnAirTimerEnabled", false).toBool();
     int timerInterval = dataMap.value("OnAirTimerInterval", 10000).toInt();
+    QString group = dataMap.value("Group").toString();
     QVariantList list = dataMap.value("Properties").toList();
     QList<QPair<QString, QVariant> > propertyList;
 
@@ -180,15 +181,17 @@ void ServerConnection::parseGraphicProperties(const QVariant &data)
         propertyList.append(QPair<QString, QVariant>(propertyMap.value("Name").toString(), propertyMap.value("Value")));
     }
 
-    emit graphicPropertiesReceived(graphic, timerEnabled, timerInterval, propertyList);
+    emit graphicPropertiesReceived(graphic, timerEnabled, timerInterval, group, propertyList);
 }
 
-void ServerConnection::setGraphicProperties(const QString &graphic, bool onAirTimerEnabled, int onAirTimerInterval, const QList<QPair<QString, QVariant> > &properties)
+void ServerConnection::setGraphicProperties(const QString &graphic, bool onAirTimerEnabled, int onAirTimerInterval,
+                                            const QString& group, const QList<QPair<QString, QVariant> > &properties)
 {
     QVariantMap commanddata;
     commanddata.insert("Name", graphic);
     commanddata.insert("OnAirTimerEnabled", onAirTimerEnabled);
     commanddata.insert("OnAirTimerInterval", onAirTimerInterval);
+    commanddata.insert("Group", group);
 
     QVariantList list;
 
