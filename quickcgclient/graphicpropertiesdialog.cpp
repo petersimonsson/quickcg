@@ -41,6 +41,11 @@ void GraphicPropertiesDialog::setProperties(const QList<QPair<QString, QVariant>
         QLineEdit* edit = new QLineEdit(properties.at(i).second.toString(), this);
         edit->setProperty("qcgProperty", properties.at(i).first);
         ui->m_propertyLayout->addRow(properties.at(i).first.mid(3) + ":", edit);
+
+        if(i == 0)
+        {
+            edit->setFocus();
+        }
     }
 }
 

@@ -77,6 +77,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>m_onAirTimerGroup</tabstop>
+  <tabstop>m_onAirTimerInterval</tabstop>
+  <tabstop>m_groupEdit</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
