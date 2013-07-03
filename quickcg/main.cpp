@@ -24,8 +24,31 @@ int main(int argc, char *argv[])
     a.setOrganizationName("Peter Simonsson");
     a.setOrganizationDomain("petersimonsson.net");
 
+    QStringList arguments = a.arguments();
+    arguments.removeFirst();
+    bool fullscreen = false;
+
+    if(!arguments.isEmpty())
+    {
+        foreach(const QString &argument, arguments)
+        {
+            if (argument == "--fullscreen")
+            {
+                fullscreen = true;
+            }
+        }
+    }
+
     MainWindow w;
-    w.show();
+
+    if(fullscreen)
+    {
+        w.showFullScreen();
+    }
+    else
+    {
+        w.show();
+    }
 
     return a.exec();
 }
