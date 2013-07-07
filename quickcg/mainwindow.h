@@ -26,6 +26,7 @@ namespace Ui {
 class QUrl;
 class QDeclarativeItem;
 class QDeclarativeComponent;
+class QGraphicsRectItem;
 class Show;
 class Server;
 
@@ -50,6 +51,8 @@ public:
     void createShow(const QString &name);
     void removeShow(const QString &name);
 
+    void removeAddressInfo();
+
 public slots:
     void addItem(QDeclarativeItem* item);
 
@@ -71,6 +74,8 @@ private:
 
     QDir m_templateDir;
     QDir m_showDir;
+
+    QGraphicsRectItem *m_addressInfoItem;
 };
 
 #endif // MAINWINDOW_H

@@ -27,12 +27,16 @@
 #include <QSettings>
 #include <QDomDocument>
 #include <QApplication>
+#include <QGraphicsRectItem>
+#include <QGraphicsSimpleTextItem>
+#include <QNetworkInterface>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_show(0),
-    m_server(0)
+    m_server(0),
+    m_addressInfoItem(NULL)
 {
     initDirs();
 
@@ -58,6 +62,31 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     m_server = new Server(this);
+
+    m_addressInfoItem = new QGraphicsRectItem;
+    m_addressInfoItem->setBrush(Qt::white);
+    m_addressInfoItem->setRect(0, 0, 1920, 1080);
+    ui->m_graphicsView->scene()->addItem(m_addressInfoItem);
+    QGraphicsSimpleTextItem *textitem = new QGraphicsSimpleTextItem(m_addressInfoItem, ui->m_graphicsView->scene());
+    textitem->setBrush(Qt::black);
+    textitem->setPos(20, 20);
+    QFont f = font();
+    f.setPointSize(30);
+    textitem->setFont(f);
+    QNetworkInterface net;
+    QString text;
+
+    foreach(const QHostAddress &address, net.allAddresses())
+    {
+        if(!text.isEmpty())
+        {
+            text += "\n";
+        }
+
+        text += address.toString();
+    }
+
+    textitem->setText("Addresses:\n" + text);
 }
 
 MainWindow::~MainWindow()
@@ -240,4 +269,10 @@ void MainWindow::removeShow(const QString &name)
 void MainWindow::quit()
 {
     qApp->quit();
+}
+
+void MainWindow::removeAddressInfo()
+{
+    delete m_addressInfoItem;
+    m_addressInfoItem = NULL;
 }

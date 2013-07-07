@@ -38,6 +38,8 @@ void Server::createClientConnection()
 
         QPointer<ClientConnection> connection = new ClientConnection(socket, this);
         m_connections.append(connection);
+
+        m_mainWindow->removeAddressInfo();
     }
 }
 
