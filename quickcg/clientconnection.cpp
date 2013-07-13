@@ -135,6 +135,15 @@ void ClientConnection::parseToggleState(const QVariant& data)
     m_server->mainWindow()->currentShow()->setGraphicOnAir(graphic, !m_server->mainWindow()->currentShow()->isGraphicOnAir(graphic));
 }
 
+void ClientConnection::sendGraphicStateChanged(const QString &graphic, bool state)
+{
+    QVariantMap map;
+    map.insert("graphic", graphic);
+    map.insert("state", state);
+
+    sendCommand("graphic state changed", map);
+}
+
 void ClientConnection::parseListTemplates(const QVariant& data)
 {
     Q_UNUSED(data)

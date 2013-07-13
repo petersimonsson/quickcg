@@ -132,6 +132,7 @@ void ServerConnection::initCommandHash()
     m_commandHash.insert("graphic added", "parseGraphicAdded");
     m_commandHash.insert("graphic removed", "parseGraphicRemoved");
     m_commandHash.insert("shows", "parseShows");
+    m_commandHash.insert("graphic state changed", "parseGraphicStateChanged");
 }
 
 void ServerConnection::parseGraphics(const QVariant &data)
@@ -265,4 +266,13 @@ void ServerConnection::removeCurrentShow()
     }
 
     sendCommand("remove show", m_currentShow);
+}
+
+void ServerConnection::parseGraphicStateChanged(const QVariant &data)
+{
+    QVariantMap dataMap = data.toMap();
+    QString graphic = dataMap.value("graphic").toString();
+    bool state = dataMap.value("state").toBool();
+
+    qDebug() << "State change in" << graphic << "to" << state;
 }

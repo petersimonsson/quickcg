@@ -73,6 +73,8 @@ private:
 
 signals:
     void itemCreated(QDeclarativeItem *item);
+
+    void stateChanged(const QString &name, bool state);
 };
 
 #endif // GRAPHIC_H

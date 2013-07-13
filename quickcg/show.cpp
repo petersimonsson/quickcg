@@ -136,7 +136,7 @@ void Show::setGraphicOnAir(const QString &name, bool state)
     {
         graphic->setOnAir(state);
 
-        if(!graphic->group().isEmpty())
+        if(state && !graphic->group().isEmpty())
         {
             foreach(Graphic* other, m_graphicHash)
             {
@@ -178,6 +178,7 @@ Graphic *Show::createGraphic(const QString &name, const QString &templateName)
     m_graphicHash.insert(name, graphic);
 
     connect(graphic, SIGNAL(itemCreated(QDeclarativeItem*)), m_mainWindow, SLOT(addItem(QDeclarativeItem*)));
+    connect(graphic, SIGNAL(stateChanged(QString,bool)), this, SIGNAL(graphicStateChanged(QString,bool)));
 
     graphic->setPropertyNames(parseGraphicProperties(templateName));
     graphic->setComponent(m_mainWindow->loadTemplate(templateName));

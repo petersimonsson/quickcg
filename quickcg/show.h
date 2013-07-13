@@ -59,6 +59,9 @@ private:
     QString m_showPath;
 
     MainWindow *m_mainWindow;
+
+signals:
+    void graphicStateChanged(const QString &graphic, bool state);
 };
 
 #endif //SHOW_H

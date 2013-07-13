@@ -37,6 +37,9 @@ public:
 
     void sendShowList();
 
+public slots:
+    void sendGraphicStateChanged(const QString &graphic, bool state);
+
 protected slots:
     void createClientConnection();
 

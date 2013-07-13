@@ -47,6 +47,8 @@ MainWindow::MainWindow(QWidget *parent) :
     (void) new QShortcut(Qt::CTRL + Qt::Key_F, this, SLOT(toggleFullscreen()), 0, Qt::ApplicationShortcut);
     (void) new QShortcut(Qt::CTRL + Qt::Key_Q, this, SLOT(quit()), 0, Qt::ApplicationShortcut);
 
+    m_server = new Server(this);
+
     QStringList showList = shows();
 
     if(!showList.isEmpty())
@@ -60,8 +62,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
         setCurrentShow(current);
     }
-
-    m_server = new Server(this);
 
     m_addressInfoItem = new QGraphicsRectItem;
     m_addressInfoItem->setBrush(Qt::white);
@@ -179,6 +179,12 @@ void MainWindow::setCurrentShow(const QString& show)
 {
     if(m_show)
     {
+        if(m_server)
+        {
+            disconnect(m_show, SIGNAL(graphicStateChanged(QString,bool)),
+                       m_server, SLOT(sendGraphicStateChanged(QString,bool)));
+        }
+
         m_show->save();
         m_show->deleteLater();
     }
@@ -194,6 +200,9 @@ void MainWindow::setCurrentShow(const QString& show)
 
         if(m_server)
         {
+            connect(m_show, SIGNAL(graphicStateChanged(QString,bool)),
+                    m_server, SLOT(sendGraphicStateChanged(QString,bool)));
+
             m_server->sendShowList();
         }
     }

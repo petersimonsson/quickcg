@@ -31,6 +31,8 @@ public:
     void sendGraphicAdded(const QString &graphic);
     void sendGraphicRemoved(const QString &graphic);
 
+    void sendGraphicStateChanged(const QString &graphic, bool state);
+
     void sendShowList();
 
 protected slots:

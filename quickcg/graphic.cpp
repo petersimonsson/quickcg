@@ -79,29 +79,16 @@ void Graphic::createItem()
 
 void Graphic::toggleOnAir()
 {
+    setOnAir(!isOnAir());
+}
+
+void Graphic::setOnAir(bool state)
+{
     if(!m_item)
     {
         return;
     }
 
-    if(m_item->property("state").toString() != "onAir")
-    {
-        m_item->setProperty("state", "onAir");
-
-        if(m_onAirTimerEnabled)
-        {
-            m_onAirTimer->start();
-        }
-    }
-    else
-    {
-        m_item->setProperty("state", "offAir");
-        m_onAirTimer->stop();
-    }
-}
-
-void Graphic::setOnAir(bool state)
-{
     if(state)
     {
         m_item->setProperty("state", "onAir");
@@ -116,6 +103,8 @@ void Graphic::setOnAir(bool state)
         m_item->setProperty("state", "offAir");
         m_onAirTimer->stop();
     }
+
+    emit stateChanged(m_name, isOnAir());
 }
 
 void Graphic::setGraphicsProperty(const QByteArray &name, const QVariant &value)
@@ -143,6 +132,11 @@ void Graphic::setGraphicsProperty(const QByteArray &name, const QVariant &value)
 
 bool Graphic::isOnAir() const
 {
+    if(!m_item)
+    {
+        return false;
+    }
+
     return (m_item->property("state").toString() == "onAir");
 }
 

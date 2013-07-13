@@ -75,3 +75,14 @@ void Server::sendShowList()
         }
     }
 }
+
+void Server::sendGraphicStateChanged(const QString &graphic, bool state)
+{
+    for(int i = 0; i < m_connections.count(); ++i)
+    {
+        if(m_connections[i])
+        {
+            m_connections[i]->sendGraphicStateChanged(graphic, state);
+        }
+    }
+}

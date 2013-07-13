@@ -54,6 +54,7 @@ protected slots:
     void parseGraphicProperties(const QVariant &data);
     void parseGraphicAdded(const QVariant &data);
     void parseGraphicRemoved(const QVariant &data);
+    void parseGraphicStateChanged(const QVariant &data);
 
     void parseShows(const QVariant &data);
 
