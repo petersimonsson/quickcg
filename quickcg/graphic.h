@@ -1,8 +1,3 @@
-#ifndef GRAPHIC_H
-#define GRAPHIC_H
-
-#include <QObject>
-#include <QPair>
 // Copyright 2012  Peter Simonsson <peter.simonsson@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -18,8 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef GRAPHIC_H
+#define GRAPHIC_H
+
+#include <QObject>
+#include <QPair>
 #include <QStringList>
 #include <QTimer>
+#include <QPointer>
 
 class QDeclarativeComponent;
 class QDeclarativeItem;
@@ -63,7 +64,7 @@ private:
     QString m_group;
 
     QDeclarativeComponent *m_component;
-    QDeclarativeItem *m_item;
+    QPointer<QDeclarativeItem> m_item;
 
     QList<QPair<QString, QVariant> > m_tempPropertyList;
     QStringList m_propertyNames;
