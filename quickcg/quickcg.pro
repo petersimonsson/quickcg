@@ -1,9 +1,7 @@
-QT += core gui declarative xml network
+QT += core gui declarative xml network widgets
 
 TARGET = quickcg
 TEMPLATE = app
-
-LIBS += -lqjson
 
 SOURCES += main.cpp\
     mainwindow.cpp \

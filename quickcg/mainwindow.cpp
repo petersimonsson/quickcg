@@ -67,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_addressInfoItem->setBrush(Qt::white);
     m_addressInfoItem->setRect(0, 0, 1920, 1080);
     ui->m_graphicsView->scene()->addItem(m_addressInfoItem);
-    QGraphicsSimpleTextItem *textitem = new QGraphicsSimpleTextItem(m_addressInfoItem, ui->m_graphicsView->scene());
+    QGraphicsSimpleTextItem *textitem = new QGraphicsSimpleTextItem(m_addressInfoItem);
     textitem->setBrush(Qt::black);
     textitem->setPos(20, 20);
     QFont f = font();

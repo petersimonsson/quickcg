@@ -18,6 +18,9 @@
 
 #include <QObject>
 #include <QTcpSocket>
+#include <QJsonValue>
+
+class QJsonDocument;
 
 class ServerConnection : public QObject
 {
@@ -49,18 +52,18 @@ protected slots:
 
     void readFromSocket();
 
-    void parseGraphics(const QVariant &data);
-    void parseTemplates(const QVariant &data);
-    void parseGraphicProperties(const QVariant &data);
-    void parseGraphicAdded(const QVariant &data);
-    void parseGraphicRemoved(const QVariant &data);
-    void parseGraphicStateChanged(const QVariant &data);
+    void parseGraphics(const QJsonValue &data);
+    void parseTemplates(const QJsonValue &data);
+    void parseGraphicProperties(const QJsonValue &data);
+    void parseGraphicAdded(const QJsonValue &data);
+    void parseGraphicRemoved(const QJsonValue &data);
+    void parseGraphicStateChanged(const QJsonValue &data);
 
-    void parseShows(const QVariant &data);
+    void parseShows(const QJsonValue &data);
 
 protected:
-    void parseCommand(const QVariant &result);
-    void sendCommand(const QString &command, const QVariant &data = QVariant());
+    void parseCommand(const QJsonDocument &jsonDoc);
+    void sendCommand(const QString &command, const QJsonValue &data = QJsonValue());
 
     void initCommandHash();
 

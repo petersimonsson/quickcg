@@ -1,9 +1,7 @@
-QT += core gui network
+QT += core gui network widgets
 
 TARGET = quickcgclient
 TEMPLATE = app
-
-LIBS += -lqjson
 
 SOURCES += main.cpp\
         mainwindow.cpp \

@@ -15,10 +15,10 @@
 
 #include "serverconnection.h"
 
-#include <qjson/serializer.h>
-#include <qjson/parser.h>
-
 #include <QStringList>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 ServerConnection::ServerConnection(QObject *parent) :
     QObject(parent)
@@ -59,59 +59,55 @@ void ServerConnection::readFromSocket()
     {
         QByteArray command = m_socket->readLine();
 
-        QJson::Parser parser;
-        bool ok = false;
+        QJsonParseError parseError;
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(command, &parseError);
 
-        QVariant result = parser.parse(command, &ok);
-
-        if(!ok)
+        if(jsonDoc.isNull())
         {
-            qDebug() << "JSON parser error:" << parser.errorString();
+            qDebug() << "JSON parser error:" << parseError.errorString();
             return;
         }
 
-        parseCommand(result);
+        parseCommand(jsonDoc);
     }
 }
 
-void ServerConnection::parseCommand(const QVariant &result)
+void ServerConnection::parseCommand(const QJsonDocument &jsonDoc)
 {
-    QVariantMap commandMap = result.toMap();
+    if (!jsonDoc.isObject())
+    {
+        qDebug () << "Command is not a JSON object";
+        return;
+    }
 
-    if(!commandMap.contains("Command"))
+    QJsonObject object = jsonDoc.object();
+
+    if(!object.contains("Command"))
     {
         qDebug() << "Data received was not a valid command";
         return;
     }
 
-    QByteArray command = m_commandHash.value(commandMap.value("Command").toString());
-    QVariant data = commandMap.value("Data");
-    QMetaObject::invokeMethod(this, command, Q_ARG(QVariant, data));
+    QByteArray command = m_commandHash.value(object.value("Command").toString());
+    QJsonValue data = object.value("Data");
+    QMetaObject::invokeMethod(this, command, Q_ARG(QJsonValue, data));
 }
 
-void ServerConnection::sendCommand(const QString &command, const QVariant &data)
+void ServerConnection::sendCommand(const QString &command, const QJsonValue &data)
 {
-    QVariantMap commandMap;
-    commandMap.insert("Command", command);
+    QJsonObject object;
+    object.insert("Command", command);
 
-    if(data.isValid())
+    if(!data.isNull())
     {
-        commandMap.insert("Data", data);
+        object.insert("Data", data);
     }
 
-    bool ok = false;
-    QJson::Serializer serializer;
-    QByteArray commandarray = serializer.serialize(commandMap, &ok);
+    QJsonDocument jsonDoc(object);
+    QByteArray commandarray = jsonDoc.toJson(QJsonDocument::Compact);
+    commandarray.append("\r\n");
 
-    if (ok)
-    {
-        commandarray.append("\r\n");
-        m_socket->write(commandarray);
-    }
-    else
-    {
-        qDebug() << "Error serializing command";
-    }
+    m_socket->write(commandarray);
 }
 
 void ServerConnection::fetchGraphicList()
@@ -135,15 +131,27 @@ void ServerConnection::initCommandHash()
     m_commandHash.insert("graphic state changed", "parseGraphicStateChanged");
 }
 
-void ServerConnection::parseGraphics(const QVariant &data)
+void ServerConnection::parseGraphics(const QJsonValue &data)
 {
-    QStringList list = data.toStringList();
+    QStringList list;
+
+    foreach (const QJsonValue &value, data.toArray())
+    {
+        list.append(value.toString());
+    }
+
     emit graphicListChanged(list);
 }
 
-void ServerConnection::parseTemplates(const QVariant &data)
+void ServerConnection::parseTemplates(const QJsonValue &data)
 {
-    QStringList list = data.toStringList();
+    QStringList list;
+
+    foreach (const QJsonValue &value, data.toArray())
+    {
+        list.append(value.toString());
+    }
+
     emit templateListReceived(list);
 }
 
@@ -154,11 +162,11 @@ void ServerConnection::fetchTemplateList()
 
 void ServerConnection::createGraphic(const QString &name, const QString &templateName)
 {
-    QVariantMap data;
-    data.insert("Name", name);
-    data.insert("Template", templateName);
+    QJsonObject object;
+    object.insert("Name", name);
+    object.insert("Template", templateName);
 
-    sendCommand("create graphic", data);
+    sendCommand("create graphic", object);
 }
 
 void ServerConnection::getProperties(const QString &graphic)
@@ -166,20 +174,20 @@ void ServerConnection::getProperties(const QString &graphic)
     sendCommand("get properties", graphic);
 }
 
-void ServerConnection::parseGraphicProperties(const QVariant &data)
+void ServerConnection::parseGraphicProperties(const QJsonValue &data)
 {
-    QVariantMap dataMap = data.toMap();
-    QString graphic = dataMap.value("Name").toString();
-    bool timerEnabled = dataMap.value("OnAirTimerEnabled", false).toBool();
-    int timerInterval = dataMap.value("OnAirTimerInterval", 10000).toInt();
-    QString group = dataMap.value("Group").toString();
-    QVariantList list = dataMap.value("Properties").toList();
+    QJsonObject object = data.toObject();
+    QString graphic = object.value("Name").toString();
+    bool timerEnabled = object.value("OnAirTimerEnabled").toBool(false);
+    int timerInterval = object.value("OnAirTimerInterval").toInt(10000);
+    QString group = object.value("Group").toString();
+    QJsonArray array = object.value("Properties").toArray();
     QList<QPair<QString, QVariant> > propertyList;
 
-    foreach(const QVariant &property, list)
+    foreach(const QJsonValue &property, array)
     {
-        QVariantMap propertyMap = property.toMap();
-        propertyList.append(QPair<QString, QVariant>(propertyMap.value("Name").toString(), propertyMap.value("Value")));
+        QJsonObject propertyObject = property.toObject();
+        propertyList.append(QPair<QString, QVariant>(propertyObject.value("Name").toString(), propertyObject.value("Value")));
     }
 
     emit graphicPropertiesReceived(graphic, timerEnabled, timerInterval, group, propertyList);
@@ -188,25 +196,25 @@ void ServerConnection::parseGraphicProperties(const QVariant &data)
 void ServerConnection::setGraphicProperties(const QString &graphic, bool onAirTimerEnabled, int onAirTimerInterval,
                                             const QString& group, const QList<QPair<QString, QVariant> > &properties)
 {
-    QVariantMap commanddata;
-    commanddata.insert("Name", graphic);
-    commanddata.insert("OnAirTimerEnabled", onAirTimerEnabled);
-    commanddata.insert("OnAirTimerInterval", onAirTimerInterval);
-    commanddata.insert("Group", group);
+    QJsonObject object;
+    object.insert("Name", graphic);
+    object.insert("OnAirTimerEnabled", onAirTimerEnabled);
+    object.insert("OnAirTimerInterval", onAirTimerInterval);
+    object.insert("Group", group);
 
-    QVariantList list;
+    QJsonArray array;
 
     for(int i = 0; i < properties.count(); ++i)
     {
-        QVariantMap property;
-        property.insert("Name", properties.at(i).first);
-        property.insert("Value", properties.at(i).second);
-        list.append(property);
+        QJsonObject propertyObject;
+        propertyObject.insert("Name", properties.at(i).first);
+        propertyObject.insert("Value", QJsonValue::fromVariant(properties.at(i).second));
+        array.append(propertyObject);
     }
 
-    commanddata.insert("Properties", list);
+    object.insert("Properties", array);
 
-    sendCommand("set graphic properties", commanddata);
+    sendCommand("set graphic properties", object);
 }
 
 void ServerConnection::removeGraphic(const QString &name)
@@ -214,14 +222,14 @@ void ServerConnection::removeGraphic(const QString &name)
     sendCommand("remove graphic", name);
 }
 
-void ServerConnection::parseGraphicAdded(const QVariant &data)
+void ServerConnection::parseGraphicAdded(const QJsonValue &data)
 {
     QString graphic = data.toString();
 
     emit graphicAdded(graphic);
 }
 
-void ServerConnection::parseGraphicRemoved(const QVariant &data)
+void ServerConnection::parseGraphicRemoved(const QJsonValue &data)
 {
     QString graphic = data.toString();
 
@@ -233,11 +241,17 @@ void ServerConnection::fetchShowList()
     sendCommand("list shows");
 }
 
-void ServerConnection::parseShows(const QVariant &data)
+void ServerConnection::parseShows(const QJsonValue &data)
 {
-    QVariantMap dataMap = data.toMap();
-    QStringList shows = dataMap.value("shows").toStringList();
-    QString current = dataMap.value("current").toString();
+    QJsonObject object = data.toObject();
+    QStringList shows;
+
+    foreach (const QJsonValue &value, object.value("shows").toArray())
+    {
+        shows.append(value.toString());
+    }
+
+    QString current = object.value("current").toString();
 
     if(current != m_currentShow)
     {
@@ -268,11 +282,11 @@ void ServerConnection::removeCurrentShow()
     sendCommand("remove show", m_currentShow);
 }
 
-void ServerConnection::parseGraphicStateChanged(const QVariant &data)
+void ServerConnection::parseGraphicStateChanged(const QJsonValue &data)
 {
-    QVariantMap dataMap = data.toMap();
-    QString graphic = dataMap.value("graphic").toString();
-    bool state = dataMap.value("state").toBool();
+    QJsonObject object = data.toObject();
+    QString graphic = object.value("graphic").toString();
+    bool state = object.value("state").toBool();
 
     qDebug() << "State change in" << graphic << "to" << state;
 }
